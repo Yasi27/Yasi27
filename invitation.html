@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine 💘</title>
+
+<style>
+  body {
+    background: linear-gradient(135deg, #ffccd5, #ffe6eb);
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding-top: 70px;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: 26px;
+    color: #c9184a;
+    padding: 0 15px;
+  }
+
+  button {
+    font-size: 18px;
+    padding: 14px 28px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    margin: 15px;
+  }
+
+  #yes {
+    background: #ff4d6d;
+    color: white;
+    position: absolute;
+  }
+
+  #no {
+    background: #6c757d;
+    color: white;
+  }
+
+  #message {
+    font-size: 18px;
+    color: #6a040f;
+    margin-top: 25px;
+    padding: 0 20px;
+    min-height: 50px;
+  }
+
+  #reward {
+    display: none;
+    font-size: 20px;
+    color: #6a040f;
+    margin-top: 30px;
+    padding: 0 20px;
+  }
+
+  #typing {
+    display: none;
+    font-size: 16px;
+    margin-top: 15px;
+    color: #555;
+  }
+
+  /* Fake camera flash */
+  #flash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Will you be my Valentine? 💖</h1>
+
+<button id="yes">YES 😍</button>
+<button id="no">NO 🙃</button>
+
+<div id="message"></div>
+<div id="typing">Notifying sender<span id="dots">.</span></div>
+
+<div id="reward">
+  😌💃🕺 <br><br>
+  <strong>Alright… you win.</strong><br><br>
+  You get to take me as your <b>plus one to the Unfiltered show and get access to my unfiltered version! ❤️‍🔥</b> 🎭✨  
+  <br><br>
+  💘 Valentine’s Day Countdown:<br>
+  <b id="countdown"></b>
+</div>
+
+<div id="flash"></div>
+
+<script>
+  const yesBtn = document.getElementById("yes");
+  const noBtn = document.getElementById("no");
+  const message = document.getElementById("message");
+  const reward = document.getElementById("reward");
+  const typing = document.getElementById("typing");
+  const dots = document.getElementById("dots");
+  const flash = document.getElementById("flash");
+
+  let attempts = 0;
+
+  const yesMessages = [
+    "You think it’s that easy? 😏",
+    "Okay okay… I’ll give you another chance 😌",
+    "Still chasing me? I like the effort 😉",
+    "Last test… don’t mess this up 😈"
+  ];
+
+  function moveYes() {
+    const x = Math.random() * (window.innerWidth - 120);
+    const y = Math.random() * (window.innerHeight - 60);
+    yesBtn.style.left = x + "px";
+    yesBtn.style.top = y + "px";
+  }
+
+  moveYes();
+
+  yesBtn.addEventListener("mouseover", () => {
+    if (attempts < 4) {
+      message.innerText = yesMessages[attempts];
+      attempts++;
+      moveYes();
+    }
+  });
+
+  yesBtn.addEventListener("click", () => {
+    if (attempts >= 4) {
+      yesBtn.style.display = "none";
+      noBtn.style.display = "none";
+      message.style.display = "none";
+      reward.style.display = "block";
+      startCountdown();
+    }
+  });
+
+  // NO button effects 😈
+  noBtn.addEventListener("click", () => {
+    // Vibration (mobile)
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+    // Flash
+    flash.style.opacity = "1";
+    setTimeout(() => flash.style.opacity = "0", 200);
+
+    alert("😏 Nice try… This was a trap.");
+
+    typing.style.display = "block";
+    let dotCount = 1;
+
+    const typingInterval = setInterval(() => {
+      dots.innerText = ".".repeat(dotCount % 4 || 1);
+      dotCount++;
+    }, 400);
+
+    setTimeout(() => {
+      clearInterval(typingInterval);
+      typing.style.display = "none";
+      alert("📸 Screenshot captured\n\nThe link sender has been notified.");
+    }, 2500);
+  });
+
+  // Countdown to Feb 14
+  function startCountdown() {
+    const year = new Date().getMonth() > 1 ? new Date().getFullYear() + 1 : new Date().getFullYear();
+    const valentines = new Date(`February 14, ${year} 00:00:00`).getTime();
+
+    setInterval(() => {
+      const now = new Date().getTime();
+      const diff = valentines - now;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / (1000 * 60)) % 60);
+
+      document.getElementById("countdown").innerText =
+        `${days} days ${hours} hours ${mins} minutes ❤️`;
+    }, 1000);
+  }
+</script>
+
+</body>
+</html>
