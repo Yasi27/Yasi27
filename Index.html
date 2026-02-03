@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine 💘</title>
+
+<style>
+body{
+  background:linear-gradient(135deg,#ffccd5,#ffe6eb);
+  font-family:Arial,sans-serif;
+  text-align:center;
+  padding-top:70px;
+  overflow:hidden;
+}
+h1{font-size:26px;color:#c9184a;padding:0 15px}
+button{
+  font-size:18px;
+  padding:14px 28px;
+  border-radius:30px;
+  border:none;
+  cursor:pointer;
+  margin:15px;
+  touch-action:manipulation;
+}
+#yes{background:#ff4d6d;color:#fff;position:absolute}
+#no{background:#6c757d;color:#fff}
+#message{min-height:50px;font-size:18px;color:#6a040f}
+#reward{display:none;font-size:20px;color:#6a040f}
+#typing{display:none;color:#555;margin-top:10px}
+#flash{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:white;opacity:0;pointer-events:none;
+  transition:.2s;z-index:999;
+}
+video,img{width:90%;max-width:320px;border-radius:14px;margin-top:15px}
+#shareWhatsApp{
+  display:none;background:#25D366;color:white;
+  padding:14px 26px;border-radius:30px;font-size:18px;
+}
+.heart{
+  position:fixed;font-size:20px;animation:float 4s linear infinite;
+}
+@keyframes float{
+  0%{transform:translateY(100vh);opacity:1}
+  100%{transform:translateY(-10vh);opacity:0}
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="title"></h1>
+
+<button id="yes">YES 😍</button>
+<button id="no">NO 🙃</button>
+
+<div id="message"></div>
+<div id="typing">Notifying sender<span id="dots">.</span></div>
+
+<div id="reward">
+  😌💃🕺<br><br>
+  <b>Alright… you win.</b><br><br>
+  You get to take me as your <b>plus one to the show</b> 🎭✨
+  <br><br>
+  💘 Valentine’s Day Countdown:<br>
+  <b id="countdown"></b>
+</div>
+
+<div id="selfieSection" style="display:none">
+  <p>📸 Send this handsome face to your Valentine-to-be 😌</p>
+  <button id="openCamera">Open Camera</button>
+  <video id="video" autoplay playsinline style="display:none"></video>
+  <canvas id="canvas" style="display:none"></canvas>
+  <img id="preview" style="display:none">
+  <button id="takePhoto" style="display:none">📸 Take Photo</button>
+  <p id="sendHint" style="display:none">Approved Valentine ✔️</p>
+  <button id="shareWhatsApp">💬 Share on WhatsApp</button>
+</div>
+
+<div id="flash"></div>
+
+<script>
+const params=new URLSearchParams(window.location.search);
+const name=params.get("name")||"you";
+document.getElementById("title").innerText=`Will you be my Valentine, ${name}? 💖`;
+
+const yesBtn=yes,noBtn=no;
+const msg=document.getElementById("message");
+const flash=document.getElementById("flash");
+const typing=document.getElementById("typing");
+const dots=document.getElementById("dots");
+const reward=document.getElementById("reward");
+const selfie=document.getElementById("selfieSection");
+
+let attempts=0;
+const texts=[
+"You think it’s that easy? 😏",
+"Okay okay… another chance 😌",
+"Still chasing me? I like it 😉",
+"Last test… don’t mess this up 😈"
+];
+
+function moveYes(){
+  yes.style.left=Math.random()*(innerWidth-140)+"px";
+  yes.style.top=Math.random()*(innerHeight-90)+"px";
+}
+moveYes();
+
+function tryYes(){
+  if(attempts<4){
+    msg.innerText=texts[attempts];
+    attempts++;moveYes();
+  }
+}
+yes.addEventListener("mouseover",tryYes);
+yes.addEventListener("touchstart",e=>{e.preventDefault();tryYes()});
+
+yes.addEventListener("click",()=>{
+  if(attempts>=4){
+    yes.style.display=no.style.display="none";
+    msg.style.display="none";
+    reward.style.display="block";
+    selfie.style.display="block";
+    hearts();
+    countdown();
+  }
+});
+
+no.addEventListener("click",()=>{
+  if(navigator.vibrate)navigator.vibrate([200,100,200]);
+  flash.style.opacity=1;setTimeout(()=>flash.style.opacity=0,200);
+  alert("😏 Nice try… This was a trap.");
+  typing.style.display="block";
+  let d=1;
+  const t=setInterval(()=>dots.innerText=".".repeat(d++%4||1),400);
+  setTimeout(()=>{
+    clearInterval(t);typing.style.display="none";
+    alert("📸 Screenshot captured\n\nThe link sender has been notified.");
+  },2500);
+});
+
+function countdown(){
+  const y=new Date().getMonth()>1?new Date().getFullYear()+1:new Date().getFullYear();
+  const v=new Date(`Feb 14, ${y} 00:00`).getTime();
+  setInterval(()=>{
+    const d=v-Date.now();
+    document.getElementById("countdown").innerText=
+    `${Math.floor(d/864e5)}d ${Math.floor(d/36e5)%24}h ${Math.floor(d/6e4)%60}m ❤️`;
+  },1000);
+}
+
+// hearts
+function hearts(){
+  setInterval(()=>{
+    const h=document.createElement("div");
+    h.className="heart";h.innerText="💖";
+    h.style.left=Math.random()*100+"vw";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),4000);
+  },300);
+}
+
+// camera + watermark + whatsapp
+const openCam=openCamera,videoEl=video,canvasEl=canvas,preview=previewImg;
+const takeBtn=takePhoto,shareBtn=shareWhatsApp;
+let stream;
+
+openCam.onclick=async()=>{
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}});
+  videoEl.srcObject=stream;
+  videoEl.style.display=takeBtn.style.display="block";
+};
+
+takeBtn.onclick=()=>{
+  canvasEl.width=videoEl.videoWidth;
+  canvasEl.height=videoEl.videoHeight;
+  const c=canvasEl.getContext("2d");
+  c.drawImage(videoEl,0,0);
+  c.font="30px Arial";c.fillStyle="white";
+  c.fillText("Approved Valentine ✔️",20,40);
+  preview.src=canvasEl.toDataURL();
+  preview.style.display=shareBtn.style.display="block";
+  stream.getTracks().forEach(t=>t.stop());
+  setTimeout(()=>shareBtn.click(),3000);
+};
+
+shareBtn.onclick=()=>{
+  const text=encodeURIComponent(
+    "I said YES 😌💘\nSending this handsome face to my Valentine-to-be ❤️"
+  );
+  window.open(`https://wa.me/?text=${text}`,"_blank");
+};
+</script>
+
+</body>
+</html>
